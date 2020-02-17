@@ -1,0 +1,240 @@
+public void volleyStringRequst(String url){
+        String  REQUEST_TAG = "com.androidtutorialpoint.volleyStringRequest";
+        progressDialog.setMessage("Loading...");
+        progressDialog.show();
+
+        StringRequest strReq = new StringRequest(url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                
+			}, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                
+            }
+        });
+        // Adding String request to request queue
+        AppSingleton.getInstance(getApplicationContext()).addToRequestQueue(strReq, REQUEST_TAG);
+    }
+}
+
+
+//jsonobject
+public void volleyJsonObjectRequest(String url){
+
+        String  REQUEST_TAG = "com.androidtutorialpoint.volleyJsonObjectRequest";
+        progressDialog.setMessage("Loading...");
+        progressDialog.show();
+
+        JsonObjectRequest jsonObjectReq = new JsonObjectRequest(url, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                
+            }
+        });
+
+        // Adding JsonObject request to request queue
+        AppSingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonObjectReq,REQUEST_TAG);
+    }
+
+//jsonarray
+    public void volleyJsonArrayRequest(String url){
+
+        String  REQUEST_TAG = "com.androidtutorialpoint.volleyJsonArrayRequest";
+        progressDialog.setMessage("Loading...");
+        progressDialog.show();
+
+        JsonArrayRequest jsonArrayReq = new JsonArrayRequest(url,
+                new Response.Listener<JSONArray>() {
+				 @Override
+				 public void onResponse(JSONArray response) {
+				 
+				 }
+			  }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+               
+            }
+        });
+
+        // Adding JsonArray request to request queue
+        AppSingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonArrayReq, REQUEST_TAG);
+    }
+
+//singleton library
+
+package com.androidtutorialpoint.volleytutorial;
+
+    import android.content.Context;
+    import android.graphics.Bitmap;
+    import android.util.LruCache;
+
+    import com.android.volley.Request;
+    import com.android.volley.RequestQueue;
+    import com.android.volley.toolbox.ImageLoader;
+    import com.android.volley.toolbox.Volley;
+
+    /**
+     * Created by androidtutorialpoint on 5/11/16.
+     */
+    public class AppSingleton {
+        private static AppSingleton mAppSingletonInstance;
+        private RequestQueue mRequestQueue;
+        private ImageLoader mImageLoader;
+        private static Context mContext;
+
+        private AppSingleton(Context context) {
+            mContext = context;
+            mRequestQueue = getRequestQueue();
+
+            mImageLoader = new ImageLoader(mRequestQueue,
+                    new ImageLoader.ImageCache() {
+                        private final LruCache<String, Bitmap>
+                                cache = new LruCache<String, Bitmap>(20);
+
+                        @Override
+                        public Bitmap getBitmap(String url) {
+                            return cache.get(url);
+                        }
+
+                        @Override
+                        public void putBitmap(String url, Bitmap bitmap) {
+                            cache.put(url, bitmap);
+                        }
+                    });
+        }
+
+        public static synchronized AppSingleton getInstance(Context context) {
+            if (mAppSingletonInstance == null) {
+                mAppSingletonInstance = new AppSingleton(context);
+            }
+            return mAppSingletonInstance;
+        }
+
+        public RequestQueue getRequestQueue() {
+            if (mRequestQueue == null) {
+                // getApplicationContext() is key, it keeps you from leaking the
+                // Activity or BroadcastReceiver if someone passes one in.
+                mRequestQueue = Volley.newRequestQueue(mContext.getApplicationContext());
+            }
+            return mRequestQueue;
+        }
+
+        public <T> void addToRequestQueue(Request<T> req,String tag) {
+            req.setTag(tag);
+            getRequestQueue().add(req);
+        }
+
+        public ImageLoader getImageLoader() {
+            return mImageLoader;
+        }
+
+        public void cancelPendingRequests(Object tag) {
+            if (mRequestQueue != null) {
+                mRequestQueue.cancelAll(tag);
+            }
+        }
+    }
+
+	
+
+Making POST Requests
+For a POST request, to add form parameters/values, the getParams() method needs to be overridden and a Map needs to be returned.
+url = "http://httpbin.org/post";
+StringRequest postRequest = new StringRequest(Request.Method.POST, url, 
+	new Response.Listener<String>() 
+	{
+		@Override
+		public void onResponse(String response) {
+			
+		}
+	}, 
+	new Response.ErrorListener() 
+	{
+		 @Override
+		 public void onErrorResponse(VolleyError error) {
+			
+	   }
+	}
+) {		
+	@Override
+	protected Map<String, String> getParams() 
+	{  
+			Map<String, String>  params = new HashMap<String, String>();  
+			params.put("name", "Alif");  
+			params.put("domain", "http://itsalif.info");
+			return params;  
+	}
+};
+queue.add(postRequest);
+
+
+Making PUT Requests
+
+Creating PUT Request is same as POST basically.
+
+url = "http://httpbin.org/put";
+StringRequest putRequest = new StringRequest(Request.Method.PUT, url, 
+	new Response.Listener<String>() 
+	{
+		@Override
+		public void onResponse(String response) {
+			// response
+			Log.d("Response", response);
+		}
+	}, 
+	new Response.ErrorListener() 
+	{
+		 @Override
+		 public void onErrorResponse(VolleyError error) {
+                         // error
+			 Log.d("Error.Response", response);
+	   }
+	}
+) {
+
+	@Override
+	protected Map<String, String> getParams() 
+	{  
+			Map<String, String>  params = new HashMap<String, String> ();  
+			params.put("name", "Alif");  
+			params.put("domain", "http://itsalif.info");
+			
+			return params;  
+	}
+
+};
+
+queue.add(putRequest);
+
+
+Making DELETE Requests
+
+url = "http://httpbin.org/delete";
+StringRequest dr = new StringRequest(Request.Method.DELETE, url, 
+	new Response.Listener<String>() 
+	{
+		@Override
+		public void onResponse(String response) {
+			// response
+			Toast.makeText($this, response, Toast.LENGTH_LONG).show();
+		}
+	}, 
+	new Response.ErrorListener() 
+	{
+		 @Override
+		 public void onErrorResponse(VolleyError error) {
+			 // error.
+			 
+	   }
+	}
+);
+queue.add(dr);
+
